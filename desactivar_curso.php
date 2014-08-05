@@ -132,31 +132,33 @@ if ($_SESSION['admin'] == 0) {
 			$horaMant = date('H:i:s',strtotime('+'.($hora_par_ahora-2).' hours', strtotime($hora_ref_activa)));
 
 			
-			$sql6="SELECT * FROM mantenimiento WHERE estado_outage = 0 AND num_POD_outage IN $str_pods"; 
-			$registros6=mysql_query($sql6,$conexion) or die ("Problemas con el Select (sql6) ".mysql_error());
-			$count6 = mysql_num_rows($registros6);
-			if ($count6 > 0){
-			  while ($reg6 = mysql_fetch_array($registros6)){			
-				  $dia_outage = $reg6['fecha_outage'];
-				  $hora_outage = $reg6['horario_outage'];
-				  $f_outage = date($dia_outage." ".$hora_outage);
-				  //echo "<br>f_outage = $f_outage";
+			if ($str_pods != ""){
+				$sql6="SELECT * FROM mantenimiento WHERE estado_outage = 0 AND num_POD_outage IN $str_pods"; 
+				$registros6=mysql_query($sql6,$conexion) or die ("Problemas con el Select (sql6) ".mysql_error());
+				$count6 = mysql_num_rows($registros6);
+				if ($count6 > 0){
+			  		while ($reg6 = mysql_fetch_array($registros6)){			
+				  		$dia_outage = $reg6['fecha_outage'];
+				  		$hora_outage = $reg6['horario_outage'];
+				  		$f_outage = date($dia_outage." ".$hora_outage);
+				  		//echo "<br>f_outage = $f_outage";
 				  
-				  $f_fin_outage = date('Y-m-d H:i:s',strtotime('+'.$HorasTurno.' hours', strtotime($f_outage)));
-				  if ($duracionTurno > $HorasTurno){
-					 $f_fin_outage_temp = date('Y-m-d H:i:s',strtotime('+'.$MinutosTurno.' minutes', strtotime($f_fin_outage)));
-					 $f_fin_outage = $f_fin_temp_outage;
-				  }
+				  		$f_fin_outage = date('Y-m-d H:i:s',strtotime('+'.$HorasTurno.' hours', strtotime($f_outage)));
+				  		if ($duracionTurno > $HorasTurno){
+					 		$f_fin_outage_temp = date('Y-m-d H:i:s',strtotime('+'.$MinutosTurno.' minutes', strtotime($f_fin_outage)));
+					 		$f_fin_outage = $f_fin_temp_outage;
+				  		}
 				
-				  if ($f_ahora > $f_fin_outage){
-				     $outage_id = $reg6['outage_id'];
-					 $sql7="DELETE FROM	 mantenimiento WHERE outage_id = $id_outage"; 
-					 $registros7=mysql_query($sql7,$conexion) or die ("Problemas con el Delete (sql7) ".mysql_error());	
-				  }
-				  		
-			  }
-			}else{
-			  //echo "<br>En este momento no hay ningun turno de mantnimiento pendiente en este curso.<br>";
+						if ($f_ahora > $f_fin_outage){
+				     			$outage_id = $reg6['outage_id'];
+					 		$sql7="DELETE FROM mantenimiento WHERE outage_id = $id_outage"; 
+					 		$registros7=mysql_query($sql7,$conexion) or die ("Problemas con el Delete (sql7) ".mysql_error());	
+				  		}
+						  		
+			  		}
+				}else{
+			  		//echo "<br>En este momento no hay ningun turno de mantnimiento pendiente en este curso.<br>";
+				}
 			}
 			//liberamos recursos
 			mysql_free_result($registros6);
